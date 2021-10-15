@@ -39,7 +39,7 @@
 /**
  * You should add more #includes here
  */
-//#include "okapi/api.hpp"
+#include "okapi/api.hpp"
 //#include "pros/api_legacy.h"
 
 /**
@@ -52,7 +52,7 @@
  */
 // using namespace pros;
 // using namespace pros::literals;
-// using namespace okapi;
+using namespace okapi;
 
 /**
  * Prototypes for the competition control tasks are redefined here to ensure
@@ -77,5 +77,40 @@ void opcontrol(void);
  */
 //#include <iostream>
 #endif
+
+const int CHASSIS_LEFT_FRONT    = 11;
+const int CHASSIS_LEFT_MIDDLE   = 12;
+const int CHASSIS_LEFT_REAR     = 13;
+const int CHASSIS_RIGHT_FRONT   = 18;
+const int CHASSIS_RIGHT_MIDDLE  = 19;
+const int CHASSIS_RIGHT_REAR    = 20;
+
+const int FRONT_ARM = 16;
+const int REAR_ARM  = 10;
+
+const int CLAW_PORT = 'A';
+
+extern pros::Motor chassis_left_front;
+extern pros::Motor chassis_left_middle;
+extern pros::Motor chassis_left_rear;
+extern pros::Motor chassis_right_front;
+extern pros::Motor chassis_right_middle;
+extern pros::Motor chassis_right_rear;
+
+extern pros::Motor arm_front;
+extern pros::Motor arm_rear;
+
+extern pros::Controller master;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+void chassis_drive(int x, int y);
+void front_arm_drive(int d);
+void rear_arm_drive(int d);
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif  // _PROS_MAIN_H_
