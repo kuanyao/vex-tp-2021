@@ -13,3 +13,5 @@ pros::Motor arm_front(FRONT_ARM, pros::E_MOTOR_GEARSET_36, true, pros::E_MOTOR_E
 pros::Motor arm_rear(REAR_ARM, pros::E_MOTOR_GEARSET_36, true, pros::E_MOTOR_ENCODER_DEGREES);
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
+
+pros::ADIDigitalOut claw_front(CLAW_FRONT, false);

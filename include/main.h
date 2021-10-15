@@ -88,7 +88,7 @@ const int CHASSIS_RIGHT_REAR    = 20;
 const int FRONT_ARM = 16;
 const int REAR_ARM  = 10;
 
-const int CLAW_PORT = 'A';
+const std::uint8_t CLAW_FRONT = 'A';
 
 extern pros::Motor chassis_left_front;
 extern pros::Motor chassis_left_middle;
@@ -100,6 +100,8 @@ extern pros::Motor chassis_right_rear;
 extern pros::Motor arm_front;
 extern pros::Motor arm_rear;
 
+extern pros::ADIDigitalOut claw_front;
+
 extern pros::Controller master;
 
 #ifdef __cplusplus
@@ -108,6 +110,7 @@ extern "C" {
 void chassis_drive(int x, int y);
 void front_arm_drive(int d);
 void rear_arm_drive(int d);
+void front_claw_drive(bool c);
 #ifdef __cplusplus
 }
 #endif

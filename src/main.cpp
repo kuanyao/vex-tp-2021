@@ -86,6 +86,9 @@ void opcontrol() {
 		bool isRaisingRearArm = master.get_digital(DIGITAL_R1) == 1;
 		bool isDroppingRearArm = master.get_digital(DIGITAL_R2) == 1;
 
+		bool isClosingFrontClaw = master.get_digital_new_press(DIGITAL_X) == 1;
+		bool isOpenningFrontClaw = master.get_digital_new_press(DIGITAL_B) == 1;
+
 		chassis_drive(left, right);
 
 		if (isRaisingFrontArm) {
@@ -102,6 +105,12 @@ void opcontrol() {
 			rear_arm_drive(-1);
 		} else {
 			rear_arm_drive(0);
+		}
+
+		if (isClosingFrontClaw) {
+			front_claw_drive(true);
+		} else if (isOpenningFrontClaw) {
+			front_claw_drive(false);
 		}
 
 		pros::delay(20);

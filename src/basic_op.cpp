@@ -39,3 +39,11 @@ void rear_arm_drive(int direction) {
         arm_rear.move(0);
     }
 }
+
+void front_claw_drive(bool close) {
+    if (close) {
+        claw_front.set_value(1);
+    } else {
+        claw_front.set_value(0);
+    }
+}
