@@ -22,22 +22,29 @@ void chassis_drive(int left_power, int right_power) {
 
 void front_arm_drive(int direction) {
     if (direction > 0) {
-        arm_front.move(-arm_voltage);
+        arm_front.move_absolute(-870,-arm_voltage);
+        arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
     } else if (direction < 0) {
-        arm_front.move(arm_voltage);
+        arm_front.move_absolute(0,arm_voltage);
+        arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     } else {
         arm_front.move(0);
     }
 }
 
-void rear_arm_drive(int direction) {
-    if (direction > 0) {
-        arm_rear.move(-arm_voltage);
-    } else if (direction < 0) {
-        arm_rear.move(arm_voltage);
-    } else {
-        arm_rear.move(0);
-    }
+void rear_arm_drive(int position) {
+
+    if (position == 0) {
+        arm_rear.move_absolute(0,arm_voltage);
+        arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    } else if (position == 1) {
+        arm_rear.move_absolute(670, arm_voltage);
+        arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    } else if (position == 2) {
+        arm_rear.move_absolute(300, arm_voltage);
+        arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    } 
+
 }
 
 void front_claw_drive(bool close) {

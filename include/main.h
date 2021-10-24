@@ -85,8 +85,8 @@ const int CHASSIS_RIGHT_FRONT   = 18;
 const int CHASSIS_RIGHT_MIDDLE  = 19;
 const int CHASSIS_RIGHT_REAR    = 20;
 
-const int FRONT_ARM = 16;
-const int REAR_ARM  = 10;
+const int FRONT_ARM = 10;
+const int REAR_ARM  = 16;
 
 const std::uint8_t CLAW_FRONT = 'A';
 

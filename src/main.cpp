@@ -74,19 +74,19 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-
+	int posTwo = -1;
 	while (true) {
 
 		int left = master.get_analog(ANALOG_LEFT_Y);
 		int right = master.get_analog(ANALOG_RIGHT_Y);
 
-		bool isRaisingFrontArm = master.get_digital(DIGITAL_L1) == 1;
-		bool isDroppingFrontArm = master.get_digital(DIGITAL_L2) == 1;
+		bool isRaisingFrontArm = master.get_digital(DIGITAL_R1) == 1;
+		bool isDroppingFrontArm = master.get_digital(DIGITAL_R2) == 1;
 
-		bool isRaisingRearArm = master.get_digital(DIGITAL_R1) == 1;
-		bool isDroppingRearArm = master.get_digital(DIGITAL_R2) == 1;
+		bool midArmPos = master.get_digital_new_press(DIGITAL_B) == 1;
+		bool isDroppingRearArm = master.get_digital(DIGITAL_L2) == 1;
 
-		bool isClosingFrontClaw = master.get_digital_new_press(DIGITAL_X) == 1;
+		bool isClosingFrontClaw = master.get_digital_new_press(DIGITAL_L1) == 1;
 		bool isOpenningFrontClaw = master.get_digital_new_press(DIGITAL_B) == 1;
 
 		chassis_drive(left, right);
@@ -99,11 +99,15 @@ void opcontrol() {
 			front_arm_drive(0);
 		}
 
-		if (isRaisingRearArm) {
-			rear_arm_drive(1);
+
+		if(midArmPos) {
+			posTwo=posTwo*-1;
+		} 
+		if (posTwo==1) {
+			rear_arm_drive(2);
 		} else if (isDroppingRearArm) {
-			rear_arm_drive(-1);
-		} else {
+			rear_arm_drive(1);
+		} else if (!isDroppingRearArm) {
 			rear_arm_drive(0);
 		}
 
