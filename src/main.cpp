@@ -75,6 +75,7 @@ void autonomous() {}
  */
 void opcontrol() {
 	int posTwo = -1;
+	int frontClawPos = -1;
 	while (true) {
 
 		int left = master.get_analog(ANALOG_LEFT_Y);
@@ -86,8 +87,7 @@ void opcontrol() {
 		bool midArmPos = master.get_digital_new_press(DIGITAL_B) == 1;
 		bool isDroppingRearArm = master.get_digital(DIGITAL_L2) == 1;
 
-		bool isClosingFrontClaw = master.get_digital_new_press(DIGITAL_L1) == 1;
-		bool isOpenningFrontClaw = master.get_digital_new_press(DIGITAL_B) == 1;
+		bool frontClaw = master.get_digital_new_press(DIGITAL_L1) == 1;
 
 		chassis_drive(left, right);
 
@@ -111,9 +111,12 @@ void opcontrol() {
 			rear_arm_drive(0);
 		}
 
-		if (isClosingFrontClaw) {
+		if(frontClaw) {
+			frontClawPos*=-1;
+		}
+		if (frontClawPos==1) {
 			front_claw_drive(true);
-		} else if (isOpenningFrontClaw) {
+		} else if(frontClawPos==-1) {
 			front_claw_drive(false);
 		}
 
