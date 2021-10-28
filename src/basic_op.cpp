@@ -59,7 +59,7 @@ void front_arm_drive(int direction) {
 
 void rear_arm_drive(int position) {
 
-    if (position == 0) {
+    if (position == 3) {
         arm_rear.move_absolute(-20,arm_voltage);
         arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     } else if (position == 1) {
@@ -220,24 +220,27 @@ void chassis_drive_until_level() {
     set_cheassis_break_mode(pros::E_MOTOR_BRAKE_BRAKE);
     bool is_chassis_on_bridge = false;
     bool is_chassis_leveled = false;
+    double max_pitch = 0;
     while (!is_chassis_on_bridge) {
-        chassis_drive(-90, -90);
+        chassis_drive(-80, -80);
         pros::delay(20);
 
         auto pitch = imu_sensor.get_pitch();
+        max_pitch = max(max_pitch, abs(pitch));
         cout << "pitch: " << pitch << endl;
         if (abs(pitch) > pitch_threshold) {
             is_chassis_on_bridge = true;
             cout << "on the bridge now" << endl;
         }
     }
-    pros::delay(800);
+    pros::delay(700);
     while (!is_chassis_leveled) {
-        chassis_drive(-70, -70);
+        // chassis_drive(-50, -50);
         pros::delay(20);
         auto pitch = imu_sensor.get_pitch();
-        cout << "pitch: " << pitch << endl;
-        if (abs(pitch) < pitch_threshold) {
+        max_pitch = max(max_pitch, abs(pitch));
+        cout << "pitch: " << pitch << ", max pitch: " << max_pitch << endl;
+        if (abs(pitch) < max_pitch - 1) {
             is_chassis_leveled = true;
             cout << "on the bridge and leveled now." << endl;
         }
@@ -245,8 +248,29 @@ void chassis_drive_until_level() {
     //chassis_drive(50, 50);
     //pros::delay(100);
     chassis_drive(0, 0);
+    pros::delay(100);
+
+    chassis_drive(50, 50);
+    // pros::delay(200);
+
+    chassis_drive(0, 0);
     
-    pros::delay(500);
+    pros::delay(1000);
     cout << "final pitch: " << imu_sensor.get_pitch() << endl;
+    
+    // auto pitch = imu_sensor.get_pitch();
+    // while (abs(pitch) > pitch_threshold) {
+    //     int direction = pitch > 0 ? 1 : -1;
+    //     chassis_drive(direction * 40, direction * 40);
+    //     pros::delay(100);
+    //     chassis_drive(0, 0);
+    //     pros::delay(100);
+    //     cout << "pitch: " << pitch << endl;
+    // }
+
+    // chassis_drive(0, 0);
+    
+    // pros::delay(1000);
+    // cout << "final pitch: " << imu_sensor.get_pitch() << endl;
     
 }

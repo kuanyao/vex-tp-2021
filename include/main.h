@@ -121,6 +121,9 @@ void chassis_turn(double degree);
 void chassis_drive_distance(int unit, int speed);
 void chassis_drive_until_distance(int stop_distance, int speed);
 void chassis_drive_until_level();
+
+void auton_climb_bridge();
+
 #ifdef __cplusplus
 }
 #endif

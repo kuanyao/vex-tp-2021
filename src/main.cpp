@@ -141,7 +141,7 @@ void opcontrol() {
 			// chassis_drive_distance(1000, 50);
 			// chassis_turn(-90);
 			// chassis_drive_until_distance(50, 90);
-			chassis_drive_until_level();
+			auton_climb_bridge();
 		}
 
 		pros::delay(20);
