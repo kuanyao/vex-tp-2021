@@ -15,7 +15,9 @@ pros::Motor arm_rear(REAR_ARM, pros::E_MOTOR_GEARSET_36, true, pros::E_MOTOR_ENC
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
 pros::ADIDigitalOut claw_front(CLAW_FRONT, false);
-
+pros::Imu imu_sensor(IMU_SENSOR_PORT);
+pros::Distance distance_sensor(DISTANCE_SENSOR_PORT_FRONT);
 // auto lg = {chassis_left_front, chassis_left_middle, chassis_left_rear};
 
 // okapi::MotorGroup chassis_mg_left(lg);
+int auton_selector = 0;

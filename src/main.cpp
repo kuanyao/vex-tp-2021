@@ -1,5 +1,7 @@
 #include "main.h"
 
+using namespace std;
+
 /**
  * A callback function for LLEMU's center button.
  *
@@ -7,13 +9,26 @@
  * "I was pressed!" and nothing.
  */
 void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
+	auton_selector = (auton_selector + 1) % 4;
+	if (auton_selector == 0) {
+		pros::lcd::set_text(1, "Auton Selection Cleared.");
+	} else if (auton_selector == 1) {
+		pros::lcd::set_text(1, "Climbing the bridge");
+	} else if (auton_selector == 2) {
+		pros::lcd::set_text(1, "Mobile goal right first!");
+	} else if (auton_selector == 3) {
+		pros::lcd::set_text(1, "Mobile goal center first!");
 	}
+}
+
+void on_right_button() {
+	auton_selector = 1;
+	pros::lcd::set_text(1, "Auton Climbing the bridge");
+}
+
+void on_left_button() {
+	auton_selector = 1;
+	pros::lcd::set_text(1, "Auton get mobile goals!");
 }
 
 /**
@@ -27,6 +42,12 @@ void initialize() {
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+	pros::lcd::register_btn0_cb(on_left_button);
+	pros::lcd::register_btn2_cb(on_right_button);
+
+	// cout << "resetting imu sensor ..." << endl;
+	// imu_sensor.reset();
+	// cout << "imu sensor finished calibrating..." << endl;
 }
 
 /**
@@ -58,7 +79,15 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	if (auton_selector == 1) {
+		auton_climb_bridge();
+	} else if (auton_selector == 2) {
+		auton_mobile_goals_right_first();
+	} else if (auton_selector == 3) {
+		auton_mobile_goals_center_first();
+	}
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -89,6 +118,8 @@ void opcontrol() {
 
 		bool frontClaw = master.get_digital_new_press(DIGITAL_L1) == 1;
 
+		bool testing_button_pressed = master.get_digital_new_press(DIGITAL_Y) == 1;
+
 		chassis_drive(left, right);
 
 		if (isRaisingFrontArm) {
@@ -118,6 +149,12 @@ void opcontrol() {
 			front_claw_drive(true);
 		} else if(frontClawPos==-1) {
 			front_claw_drive(false);
+		}
+
+		if (testing_button_pressed) {
+			// chassis_drive_distance(1000, 50);
+			// chassis_turn(-90);
+			// chassis_drive_until_distance(50, 90);
 		}
 
 		pros::delay(20);
