@@ -210,12 +210,13 @@ void chassis_drive_until_distance(int stop_distance, int speed) {
     }
     chassis_drive(0, 0);
 
-    pros::delay(500);
-    cout << "final distance: " << distance_sensor.get() << endl;
+    // pros::delay(500);
+    // cout << "final distance: " << distance_sensor.get() << endl;
 }
 
 void chassis_drive_until_level() {
 
+    const int pitch_threshold = 10;
     set_cheassis_break_mode(pros::E_MOTOR_BRAKE_BRAKE);
     bool is_chassis_on_bridge = false;
     bool is_chassis_leveled = false;
@@ -223,21 +224,29 @@ void chassis_drive_until_level() {
         chassis_drive(-90, -90);
         pros::delay(20);
 
-        auto roll = imu_sensor.get_roll();
-        if (abs(roll) > 5) {
+        auto pitch = imu_sensor.get_pitch();
+        cout << "pitch: " << pitch << endl;
+        if (abs(pitch) > pitch_threshold) {
             is_chassis_on_bridge = true;
+            cout << "on the bridge now" << endl;
         }
     }
-    pros::delay(1000);
+    pros::delay(800);
     while (!is_chassis_leveled) {
-        chassis_drive(-30, -30);
+        chassis_drive(-70, -70);
         pros::delay(20);
-        auto roll = imu_sensor.get_roll();
-        if (abs(roll) < 5) {
+        auto pitch = imu_sensor.get_pitch();
+        cout << "pitch: " << pitch << endl;
+        if (abs(pitch) < pitch_threshold) {
             is_chassis_leveled = true;
+            cout << "on the bridge and leveled now." << endl;
         }
     }
     //chassis_drive(50, 50);
     //pros::delay(100);
     chassis_drive(0, 0);
+    
+    pros::delay(500);
+    cout << "final pitch: " << imu_sensor.get_pitch() << endl;
+    
 }
