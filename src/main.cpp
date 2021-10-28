@@ -1,5 +1,7 @@
 #include "main.h"
 
+using namespace std;
+
 /**
  * A callback function for LLEMU's center button.
  *
@@ -16,6 +18,13 @@ void on_center_button() {
 	}
 }
 
+void on_right_button() {
+}
+
+void on_left_button() {
+
+}
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -27,6 +36,12 @@ void initialize() {
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+	pros::lcd::register_btn0_cb(on_left_button);
+	pros::lcd::register_btn2_cb(on_right_button);
+
+	// cout << "resetting imu sensor ..." << endl;
+	// imu_sensor.reset();
+	// cout << "imu sensor finished calibrating..." << endl;
 }
 
 /**
@@ -89,6 +104,8 @@ void opcontrol() {
 
 		bool frontClaw = master.get_digital_new_press(DIGITAL_L1) == 1;
 
+		bool testing_button_pressed = master.get_digital_new_press(DIGITAL_Y) == 1;
+
 		chassis_drive(left, right);
 
 		if (isRaisingFrontArm) {
@@ -118,6 +135,12 @@ void opcontrol() {
 			front_claw_drive(true);
 		} else if(frontClawPos==-1) {
 			front_claw_drive(false);
+		}
+
+		if (testing_button_pressed) {
+			// chassis_drive_distance(1000, 50);
+			// chassis_turn(-90);
+			chassis_drive_until_distance(50, 90);
 		}
 
 		pros::delay(20);
