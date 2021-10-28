@@ -9,20 +9,26 @@ using namespace std;
  * "I was pressed!" and nothing.
  */
 void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
+	auton_selector = (auton_selector + 1) % 4;
+	if (auton_selector == 0) {
+		pros::lcd::set_text(1, "Auton Selection Cleared.");
+	} else if (auton_selector == 1) {
+		pros::lcd::set_text(1, "Climbing the bridge");
+	} else if (auton_selector == 2) {
+		pros::lcd::set_text(1, "Mobile goal right first!");
+	} else if (auton_selector == 3) {
+		pros::lcd::set_text(1, "Mobile goal center first!");
 	}
 }
 
 void on_right_button() {
+	auton_selector = 1;
+	pros::lcd::set_text(1, "Auton Climbing the bridge");
 }
 
 void on_left_button() {
-
+	auton_selector = 1;
+	pros::lcd::set_text(1, "Auton get mobile goals!");
 }
 
 /**
@@ -73,7 +79,15 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	if (auton_selector == 1) {
+		auton_climb_bridge();
+	} else if (auton_selector == 2) {
+		auton_mobile_goals_right_first();
+	} else if (auton_selector == 3) {
+		auton_mobile_goals_center_first();
+	}
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -141,7 +155,6 @@ void opcontrol() {
 			// chassis_drive_distance(1000, 50);
 			// chassis_turn(-90);
 			// chassis_drive_until_distance(50, 90);
-			auton_climb_bridge();
 		}
 
 		pros::delay(20);

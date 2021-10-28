@@ -20,3 +20,4 @@ pros::Distance distance_sensor(DISTANCE_SENSOR_PORT_FRONT);
 // auto lg = {chassis_left_front, chassis_left_middle, chassis_left_rear};
 
 // okapi::MotorGroup chassis_mg_left(lg);
+int auton_selector = 0;

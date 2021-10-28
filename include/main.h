@@ -109,6 +109,8 @@ extern pros::Distance distance_sensor;
 
 extern pros::Controller master;
 
+extern int auton_selector;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -123,6 +125,8 @@ void chassis_drive_until_distance(int stop_distance, int speed);
 void chassis_drive_until_level();
 
 void auton_climb_bridge();
+void auton_mobile_goals_right_first();
+void auton_mobile_goals_center_first();
 
 #ifdef __cplusplus
 }
