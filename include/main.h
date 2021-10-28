@@ -79,30 +79,29 @@ void opcontrol(void);
 #endif
 
 const int CHASSIS_LEFT_FRONT    = 11;
-const int CHASSIS_LEFT_MIDDLE   = 12;
-const int CHASSIS_LEFT_REAR     = 13;
-const int CHASSIS_RIGHT_FRONT   = 18;
-const int CHASSIS_RIGHT_MIDDLE  = 19;
-const int CHASSIS_RIGHT_REAR    = 20;
+const int CHASSIS_LEFT_REAR     = 20;
+const int CHASSIS_RIGHT_FRONT   = 1;
+const int CHASSIS_RIGHT_REAR    = 10;
 
-const int FRONT_ARM = 10;
-const int REAR_ARM  = 16;
-
-const std::uint8_t CLAW_FRONT = 'A';
+const int DISTANCE_SENSOR_FRONT_PORT = 2;
+// const int DISTANCE_SENSOR_REAR_PORT = 2;
+const int GYRO_SENSOR_PORT = 19;
+const int COLOR_SENSOR_PORT = 12;
+const int VISION_SENSOR_PORT = 13;
 
 extern pros::Motor chassis_left_front;
-extern pros::Motor chassis_left_middle;
 extern pros::Motor chassis_left_rear;
 extern pros::Motor chassis_right_front;
-extern pros::Motor chassis_right_middle;
 extern pros::Motor chassis_right_rear;
 
-extern pros::Motor arm_front;
-extern pros::Motor arm_rear;
-
-extern pros::ADIDigitalOut claw_front;
+extern pros::Distance distance_sensor_front;
+extern pros::Distance distance_sensor_rear;
+extern pros::Optical opticial_sensor;
+extern pros::Imu imu_sensor;
+extern pros::Vision vision_sensor;
 
 extern pros::Controller master;
+extern pros::ADIDigitalIn bumper_switch;
 
 #ifdef __cplusplus
 extern "C" {
@@ -111,6 +110,10 @@ void chassis_drive(int x, int y);
 void front_arm_drive(int d);
 void rear_arm_drive(int d);
 void front_claw_drive(bool c);
+void chassis_turn(double degree);
+void chassis_drive_distance(int unit, int speed);
+void chassis_drive_until_distance(int stop_distance, int speed);
+void chassis_drive_until_level();
 #ifdef __cplusplus
 }
 #endif

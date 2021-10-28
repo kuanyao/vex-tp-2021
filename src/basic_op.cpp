@@ -1,7 +1,10 @@
 #include "main.h"
 
+using namespace std;
+
 const int chass_power_threshold = 3;
 const int arm_voltage = 127;
+const double chass_rotate_degree_threshold = 2;
 
 void chassis_drive(int left_power, int right_power) {
 
@@ -13,44 +16,136 @@ void chassis_drive(int left_power, int right_power) {
     }
 
     chassis_left_front.move(left_power);
-    chassis_left_middle.move(left_power);
     chassis_left_rear.move(left_power);
     chassis_right_front.move(right_power);
-    chassis_right_middle.move(right_power);
     chassis_right_rear.move(right_power);
 }
 
-void front_arm_drive(int direction) {
-    if (direction > 0) {
-        arm_front.move_absolute(-870,-arm_voltage);
-        arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-    } else if (direction < 0) {
-        arm_front.move_absolute(0,arm_voltage);
-        arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    } else {
-        arm_front.move(0);
-    }
+double average_chassis_motor_position() {
+    auto l_pos = chassis_left_front.get_position();
+    auto r_pos = chassis_right_front.get_position(); 
+    return (l_pos + r_pos) / 2;
 }
 
-void rear_arm_drive(int position) {
+void chassis_drive_distance(int unit, int speed) {
 
-    if (position == 0) {
-        arm_rear.move_absolute(0,arm_voltage);
-        arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    } else if (position == 1) {
-        arm_rear.move_absolute(670, arm_voltage);
-        arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    } else if (position == 2) {
-        arm_rear.move_absolute(300, arm_voltage);
-        arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    } 
-
+    int direction = speed > 0 ? -1 : 1;
+    chassis_left_front.tare_position();
+    chassis_right_front.tare_position();
+    chassis_drive(30 * direction, 30 * direction);
+    pros::delay(200);
+    while (true) {
+        chassis_drive(speed * direction, speed * direction);
+        pros::delay(20);
+        auto pos = average_chassis_motor_position();
+        if ((abs(pos) - unit) >= 400) {
+            break;
+        }
+    }
+    while (true) {
+        chassis_drive(30 * direction, 30 * direction);
+        pros::delay(20);
+        auto pos = average_chassis_motor_position();
+        if (abs(pos) >= unit) {
+            break;
+        }
+    }
+    chassis_drive(0, 0);
 }
 
-void front_claw_drive(bool close) {
-    if (close) {
-        claw_front.set_value(1);
-    } else {
-        claw_front.set_value(0);
+void chassis_drive_until_distance(int stop_distance, int speed) {
+    
+    auto distance = distance_sensor_front.get();
+    chassis_drive(-30, -30);
+    pros::delay(200);
+    while (distance > (stop_distance + 300)) {
+        chassis_drive(-speed, -speed);
+        pros::delay(20);
+
+        distance = distance_sensor_front.get();
+        auto confidence = distance_sensor_front.get_confidence();
+        auto size = distance_sensor_front.get_object_size();
+
+        cout << "distance: " << distance
+            << ", confidence: " << confidence
+            << ", size: " << size << endl;
     }
+    while (distance > stop_distance) {
+        chassis_drive(-30, -30);
+        pros::delay(20);
+        distance = distance_sensor_front.get();
+    }
+    chassis_drive(0, 0);
+}
+
+void chassis_drive_until_level() {
+    bool is_chassis_on_bridge = false;
+    bool is_chassis_leveled = false;
+    while (!is_chassis_on_bridge) {
+        chassis_drive(-90, -90);
+        pros::delay(20);
+
+        auto roll = imu_sensor.get_roll();
+        if (abs(roll) > 5) {
+            is_chassis_on_bridge = true;
+        }
+    }
+    pros::delay(1000);
+    while (!is_chassis_leveled) {
+        chassis_drive(-30, -30);
+        pros::delay(20);
+        auto roll = imu_sensor.get_roll();
+        if (abs(roll) < 5) {
+            is_chassis_leveled = true;
+        }
+    }
+    //chassis_drive(50, 50);
+    //pros::delay(100);
+    chassis_drive(0, 0);
+}
+
+
+void chassis_rotate(int speed, bool clockwise) {
+    int speed_modifier = clockwise ? 1 : -1;
+    chassis_drive(speed_modifier * speed, -1 * speed_modifier * speed);
+}
+
+int calculate_rotate_speed(int delta) {
+    // if (std::abs(delta) < 10) {
+    //     return 10;
+    // }
+    // if (std::abs(delta) < 30) {
+    //     return 20;
+    // }
+    return 30;
+}
+
+void chassis_turn(double degree) {
+
+    std::cout << "chassis turn " << degree << std::endl;
+
+    double current_pos = imu_sensor.get_heading();
+    double target_pos = (int)(current_pos + degree);
+    double delta = degree;
+    double last_delta = std::abs(delta);
+
+    while (std::abs(delta) > chass_rotate_degree_threshold) {
+        int speed = calculate_rotate_speed(delta);
+        chassis_rotate(speed, delta < 0);
+        pros::delay(10);
+        
+        current_pos = imu_sensor.get_heading();
+        delta = (int)(target_pos - current_pos) % 360;
+        cout << "target: " << target_pos 
+            << ", current: " << current_pos
+            << ", dalta: " << delta 
+            << ", rotation: " << imu_sensor.get_rotation() 
+            << ", last delta: " << last_delta << endl;
+        // if (std::abs(delta) > (last_delta + chass_rotate_degree_threshold)) {
+        //     break;
+        // }
+        last_delta = std::abs(delta);
+    }
+    cout << "break out from the loop" << endl;
+    chassis_drive(0, 0);
 }

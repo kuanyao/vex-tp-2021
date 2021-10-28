@@ -24,9 +24,15 @@ void on_center_button() {
  */
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
+	pros::lcd::set_text(1, "did I change?");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+
+	chassis_left_front.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	chassis_left_rear.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	chassis_right_front.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	chassis_right_rear.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	pros::delay(50);
 }
 
 /**
@@ -74,47 +80,19 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	int posTwo = -1;
+
+	// chassis_drive(10, 10);
+	// pros::delay(20);
+	// chassis_drive(0, 0);
+
 	while (true) {
 
-		int left = master.get_analog(ANALOG_LEFT_Y);
-		int right = master.get_analog(ANALOG_RIGHT_Y);
-
-		bool isRaisingFrontArm = master.get_digital(DIGITAL_R1) == 1;
-		bool isDroppingFrontArm = master.get_digital(DIGITAL_R2) == 1;
-
-		bool midArmPos = master.get_digital_new_press(DIGITAL_B) == 1;
-		bool isDroppingRearArm = master.get_digital(DIGITAL_L2) == 1;
-
-		bool isClosingFrontClaw = master.get_digital_new_press(DIGITAL_L1) == 1;
-		bool isOpenningFrontClaw = master.get_digital_new_press(DIGITAL_B) == 1;
-
-		chassis_drive(left, right);
-
-		if (isRaisingFrontArm) {
-			front_arm_drive(1);
-		} else if (isDroppingFrontArm) {
-			front_arm_drive(-1);
-		} else {
-			front_arm_drive(0);
-		}
-
-
-		if(midArmPos) {
-			posTwo=posTwo*-1;
-		} 
-		if (posTwo==1) {
-			rear_arm_drive(2);
-		} else if (isDroppingRearArm) {
-			rear_arm_drive(1);
-		} else if (!isDroppingRearArm) {
-			rear_arm_drive(0);
-		}
-
-		if (isClosingFrontClaw) {
-			front_claw_drive(true);
-		} else if (isOpenningFrontClaw) {
-			front_claw_drive(false);
+		if (bumper_switch.get_new_press() == 1) {
+			pros::lcd::set_text(2, "pushed");
+			// chassis_turn(90);
+			// chassis_drive_distance(50, 40);
+			chassis_drive_until_distance(200, 90);
+			//chassis_drive_until_level();
 		}
 
 		pros::delay(20);
