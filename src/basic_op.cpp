@@ -56,10 +56,12 @@ void front_arm_drive(int direction) {
     }
 }
 
+
+
 void rear_arm_drive(int position) {
 
-    if (position == 3) {
-        arm_rear.move_absolute(-20,arm_voltage);
+    if (position == 0) {
+        arm_rear.move_absolute(-14,arm_voltage);
         arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     } else if (position == 1) {
         arm_rear.move_absolute(670, arm_voltage);
@@ -70,6 +72,10 @@ void rear_arm_drive(int position) {
     } 
 
 }
+void rear_arm_preset(int position) {
+    
+}
+
 
 void front_claw_drive(bool close) {
     if (close) {
@@ -78,6 +84,7 @@ void front_claw_drive(bool close) {
         claw_front.set_value(0);
     }
 }
+
 
 void chassis_rotate(int speed, bool clockwise) {
     int speed_modifier = clockwise ? 1 : -1;

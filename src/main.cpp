@@ -80,6 +80,8 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+	auton_selector = 1;
+	
 	if (auton_selector == 1) {
 		auton_climb_bridge();
 	} else if (auton_selector == 2) {
@@ -155,6 +157,8 @@ void opcontrol() {
 			// chassis_drive_distance(1000, 50);
 			// chassis_turn(-90);
 			// chassis_drive_until_distance(50, 90);
+			auton_climb_bridge();
+
 		}
 
 		pros::delay(20);
