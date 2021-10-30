@@ -39,18 +39,19 @@ void front_arm_drive(int direction) {
         testFrontArm = true;
         if(armStage == 0) {
             arm_front.move_absolute(-620, - arm_voltage);
-            arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+            arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
             armStage=1;
         } else {
             arm_front.move_absolute(-900,-arm_voltage);
-            arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+            arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
         }
 
     } else if (direction < 0) {
         testFrontArm = false;
         armStage=0;
-        arm_front.move_absolute(0,arm_voltage);
         arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        arm_front.move_absolute(0,arm_voltage);
+        
     } else if (!(direction > 0)&& testFrontArm && !(armStage == 0)){
         arm_front.move(0);
     }
@@ -64,10 +65,10 @@ void rear_arm_drive(int position) {
         arm_rear.move_absolute(-14,arm_voltage);
         arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     } else if (position == 1) {
-        arm_rear.move_absolute(670, arm_voltage);
+        arm_rear.move_absolute(675, arm_voltage);
         arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     } else if (position == 2) {
-        arm_rear.move_absolute(300, arm_voltage);
+        arm_rear.move_absolute(420, arm_voltage);
         arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     } 
 
@@ -169,6 +170,11 @@ void chassis_drive_distance(int unit, int speed) {
 
     set_cheassis_break_mode(pros::E_MOTOR_BRAKE_BRAKE);
     int direction = speed > 0 ? -1 : 1;
+    if(speed > 0) {
+        int direction = 1;
+    } else {
+        direction = -1;
+    }
     chassis_left_front.tare_position();
     chassis_right_front.tare_position();
     chassis_drive(30 * direction, 30 * direction);

@@ -127,6 +127,7 @@ void chassis_drive_until_level();
 void auton_climb_bridge();
 void auton_mobile_goals_right_first();
 void auton_mobile_goals_center_first();
+void auton_go_straight_and_get();
 
 #ifdef __cplusplus
 }

@@ -9,11 +9,11 @@ using namespace std;
  * "I was pressed!" and nothing.
  */
 void on_center_button() {
-	auton_selector = (auton_selector + 1) % 4;
+	// auton_selector = (auton_selector + 1) % 4;
 	if (auton_selector == 0) {
 		pros::lcd::set_text(1, "Auton Selection Cleared.");
 	} else if (auton_selector == 1) {
-		pros::lcd::set_text(1, "Climbing the bridge");
+		pros::lcd::set_text(1, "Straight and Get");
 	} else if (auton_selector == 2) {
 		pros::lcd::set_text(1, "Mobile goal right first!");
 	} else if (auton_selector == 3) {
@@ -80,10 +80,10 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	auton_selector = 1;
-	
+	auton_selector = 2;
+
 	if (auton_selector == 1) {
-		auton_climb_bridge();
+		auton_go_straight_and_get();
 	} else if (auton_selector == 2) {
 		auton_mobile_goals_right_first();
 	} else if (auton_selector == 3) {
@@ -105,7 +105,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	int posTwo = -1;
+	int posTwo = 1;
 	int frontClawPos = -1;
 	while (true) {
 
@@ -157,8 +157,8 @@ void opcontrol() {
 			// chassis_drive_distance(1000, 50);
 			// chassis_turn(-90);
 			// chassis_drive_until_distance(50, 90);
-			auton_climb_bridge();
-
+			// auton_climb_bridge();
+			
 		}
 
 		pros::delay(20);
