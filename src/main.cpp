@@ -80,14 +80,14 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	auton_selector = 2;
+	auton_selector = 3;
 
 	if (auton_selector == 1) {
-		auton_go_straight_and_get();
+		right_side_one_mogo_rings();
 	} else if (auton_selector == 2) {
-		auton_mobile_goals_right_first();
+		right_side_two_mogos();
 	} else if (auton_selector == 3) {
-		auton_mobile_goals_center_first();
+		left_side();
 	}
 }
 
@@ -106,7 +106,7 @@ void autonomous() {
  */
 void opcontrol() {
 	int posTwo = 1;
-	int frontClawPos = -1;
+	int frontClawPos = 1;
 	while (true) {
 
 		int left = master.get_analog(ANALOG_LEFT_Y);
@@ -121,6 +121,8 @@ void opcontrol() {
 		bool frontClaw = master.get_digital_new_press(DIGITAL_L1) == 1;
 
 		bool testing_button_pressed = master.get_digital_new_press(DIGITAL_Y) == 1;
+		bool downArrow = master.get_digital(DIGITAL_DOWN) == 1;
+		bool upArrow= master.get_digital(DIGITAL_UP) == 1;
 
 		chassis_drive(left, right);
 
@@ -129,9 +131,13 @@ void opcontrol() {
 		} else if (isDroppingFrontArm) {
 			front_arm_drive(-1);
 		} else {
+			front_arm_minute();
 			front_arm_drive(0);
 		}
 
+		if(downArrow) {
+
+		}
 
 		if(midArmPos) {
 			posTwo=posTwo*-1;

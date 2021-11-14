@@ -33,30 +33,50 @@ void chassis_drive(int left_power, int right_power) {
     chassis_right_rear.move(right_power);
 }
 bool testFrontArm = true;
-int armStage = 0;
+
+int armIntialAdjust = 0;
+void frontArmAdjust(int direction) {
+    if(direction ==1) {
+        armIntialAdjust+=5;
+    } else if(direction == -1) {
+        armIntialAdjust-=5;
+    } 
+
+}
+int testVar = 0;
 void front_arm_drive(int direction) {
     if (direction > 0) {
-        testFrontArm = true;
-        if(armStage == 0) {
-            arm_front.move_absolute(-620, - arm_voltage);
-            arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-            armStage=1;
-        } else {
-            arm_front.move_absolute(-900,-arm_voltage);
-            arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        }
-
+        arm_front.move_absolute(-900,-arm_voltage);
+        arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        testVar=0;
+    } else if(master.get_digital(DIGITAL_RIGHT)) {
+        arm_front.move_absolute(-390,arm_voltage);
+        testVar=0;
     } else if (direction < 0) {
-        testFrontArm = false;
-        armStage=0;
-        arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-        arm_front.move_absolute(0,arm_voltage);
-        
-    } else if (!(direction > 0)&& testFrontArm && !(armStage == 0)){
+        testVar=1; 
+    } else if (!(direction > 0) && !master.get_digital(DIGITAL_RIGHT) && testVar==0) {
+        arm_front.move(0);
+        testVar=0;
+    } else if(testVar=1) {
+        arm_front.move_absolute(50,arm_voltage);
+    } 
+}
+
+void front_arm_minute() {
+    if(master.get_digital(DIGITAL_DOWN)) {
+        arm_front.move(50);
+        pros::delay(30);
+        arm_front.move(25);
+        pros::delay(30);
+        arm_front.move(0);
+    } else if(master.get_digital(DIGITAL_UP)) {
+        arm_front.move(-50);
+        pros::delay(30);
+        arm_front.move(-25);
+        pros::delay(30);
         arm_front.move(0);
     }
 }
-
 
 
 void rear_arm_drive(int position) {
@@ -65,7 +85,7 @@ void rear_arm_drive(int position) {
         arm_rear.move_absolute(-14,arm_voltage);
         arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     } else if (position == 1) {
-        arm_rear.move_absolute(675, arm_voltage);
+        arm_rear.move_absolute(695, arm_voltage);
         arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     } else if (position == 2) {
         arm_rear.move_absolute(420, arm_voltage);
@@ -216,9 +236,36 @@ void chassis_drive_until_distance(int stop_distance, int speed) {
             << ", size: " << size << endl;
     }
     while (distance > stop_distance) {
-        chassis_drive(30, 30);
+        chassis_drive(45, 45);
         pros::delay(20);
         distance = distance_sensor.get();
+    }
+    chassis_drive(0, 0);
+
+    // pros::delay(500);
+    // cout << "final distance: " << distance_sensor.get() << endl;
+}
+void chassis_drive_until_distance_back(int stop_distance, int speed) {
+    set_cheassis_break_mode(pros::E_MOTOR_BRAKE_BRAKE);
+    auto distance = distance_back_sensor.get();
+    chassis_drive(-30, -30);
+    pros::delay(200);
+    while (distance > (stop_distance + 500)) {
+        chassis_drive(-speed, -speed);
+        pros::delay(20);
+
+        distance = distance_back_sensor.get();
+        auto confidence = distance_back_sensor.get_confidence();
+        auto size = distance_back_sensor.get_object_size();
+
+        cout << "distance: " << distance
+            << ", confidence: " << confidence
+            << ", size: " << size << endl;
+    }
+    while (distance > stop_distance) {
+        chassis_drive(30, 30);
+        pros::delay(20);
+        distance = distance_back_sensor.get();
     }
     chassis_drive(0, 0);
 

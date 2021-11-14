@@ -17,6 +17,7 @@ pros::Controller master(pros::E_CONTROLLER_MASTER);
 pros::ADIDigitalOut claw_front(CLAW_FRONT, false);
 pros::Imu imu_sensor(IMU_SENSOR_PORT);
 pros::Distance distance_sensor(DISTANCE_SENSOR_PORT_FRONT);
+pros::Distance distance_back_sensor(DISTANCE_SENSOR_PORT_BACK);
 // auto lg = {chassis_left_front, chassis_left_middle, chassis_left_rear};
 
 // okapi::MotorGroup chassis_mg_left(lg);
