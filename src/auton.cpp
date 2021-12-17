@@ -97,7 +97,7 @@ void right_side_two_mogos() {
     pros::delay(200);
     front_claw_drive(false);
 
-    chassis_drive_until_distance(60, 90);
+    chassis_drive_until_distance(60, 120);
 
     front_claw_drive(true);
     pros::delay(200);
@@ -120,7 +120,7 @@ void right_side_two_mogos() {
 
     chassis_drive_distance(1140,-60);
     arm_front.move_absolute(-140,200);
-    chassis_turn(-167);
+    chassis_turn(-160);
 
     chassis_drive_distance(290,60);
     rear_arm_drive(1);

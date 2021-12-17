@@ -24,7 +24,7 @@ void chassis_drive(int left_power, int right_power) {
     if (abs(right_power) < chass_power_threshold) {
         right_power = 0;
     }
-
+ 	set_cheassis_break_mode(pros::E_MOTOR_BRAKE_COAST);
     chassis_left_front.move(left_power);
     chassis_left_middle.move(left_power);
     chassis_left_rear.move(left_power);
@@ -58,8 +58,9 @@ void front_arm_drive(int direction) {
         arm_front.move(0);
         testVar=0;
     } else if(testVar=1) {
-        arm_front.move_absolute(50,arm_voltage);
+        arm_front.move_absolute(70,arm_voltage);
     } 
+
 }
 
 void front_arm_minute() {
@@ -163,7 +164,7 @@ void chassis_turn(double degree) {
         // }
         last_delta = std::abs(delta);
     }
-    cout << "break out from the loop" << endl;
+    cout << "break out from the loop" << endl;  
     chassis_drive(0, 0);
 
     // pros::delay(500);

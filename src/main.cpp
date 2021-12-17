@@ -80,7 +80,7 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	auton_selector = 3;
+	auton_selector = 2;
 
 	if (auton_selector == 1) {
 		right_side_one_mogo_rings();
