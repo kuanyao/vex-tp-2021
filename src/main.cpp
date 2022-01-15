@@ -105,7 +105,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	int posTwo = 1;
+	int posTwo = -1;
 	int frontClawPos = 1;
 	while (true) {
 

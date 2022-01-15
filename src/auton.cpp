@@ -86,18 +86,19 @@ void right_side_one_mogo_rings() {
     chassis_drive_distance(40,60);
     chassis_turn(35);
 
-    chassis_drive_until_distance(60,90);
 
 }
 
 void right_side_two_mogos() {
-
+    chassis_drive(200,200);
     arm_front.move_absolute(50,200);
     front_claw_drive(true);
-    pros::delay(200);
+    pros::delay(120);
     front_claw_drive(false);
+    chassis_drive(0,0);
 
-    chassis_drive_until_distance(60, 120);
+
+    chassis_drive_until_distance(90, 120);
 
     front_claw_drive(true);
     pros::delay(200);
@@ -112,7 +113,7 @@ void right_side_two_mogos() {
 
     rear_arm_drive(1);
     arm_front.move_absolute(-140,200);
-    chassis_turn(113.5);
+    chassis_turn(110.5);
 
     chassis_drive_distance(1240,60);
     pros::delay(600);
