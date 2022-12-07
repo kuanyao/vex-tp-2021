@@ -7,330 +7,44 @@ const int arm_voltage = 127;
 
 void set_cheassis_break_mode(const pros::motor_brake_mode_e_t mode) {
     chassis_left_front.set_brake_mode(mode);
-    chassis_left_middle.set_brake_mode(mode);
     chassis_left_rear.set_brake_mode(mode);
     chassis_right_front.set_brake_mode(mode);
-    chassis_right_middle.set_brake_mode(mode);
     chassis_right_rear.set_brake_mode(mode);
 }
 
-void chassis_drive(int left_power, int right_power) {
-
-    // cout << "left: " << left_power << ", right: " << right_power << endl;
-
-    if (abs(left_power) < chass_power_threshold) {
-        left_power = 0;
-    }
-    if (abs(right_power) < chass_power_threshold) {
-        right_power = 0;
-    }
- 	set_cheassis_break_mode(pros::E_MOTOR_BRAKE_COAST);
-    chassis_left_front.move(left_power);
-    chassis_left_middle.move(left_power);
-    chassis_left_rear.move(left_power);
-    chassis_right_front.move(right_power);
-    chassis_right_middle.move(right_power);
-    chassis_right_rear.move(right_power);
-}
-bool testFrontArm = true;
-
-int armIntialAdjust = 0;
-void frontArmAdjust(int direction) {
-    if(direction ==1) {
-        armIntialAdjust+=5;
-    } else if(direction == -1) {
-        armIntialAdjust-=5;
-    } 
-
-}
-int testVar = 0;
-void front_arm_drive(int direction) {
-    if (direction > 0) {
-        arm_front.move_absolute(-900,-arm_voltage);
-        arm_front.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        testVar=0;
-    } else if(master.get_digital(DIGITAL_RIGHT)) {
-        arm_front.move_absolute(-390,arm_voltage);
-        testVar=0;
-    } else if (direction < 0) {
-        testVar=1; 
-    } else if (!(direction > 0) && !master.get_digital(DIGITAL_RIGHT) && testVar==0) {
-        arm_front.move(0);
-        testVar=0;
-    } else if(testVar=1) {
-        arm_front.move_absolute(70,arm_voltage);
-    } 
-
-}
-
-void front_arm_minute() {
-    if(master.get_digital(DIGITAL_DOWN)) {
-        arm_front.move(50);
-        pros::delay(30);
-        arm_front.move(25);
-        pros::delay(30);
-        arm_front.move(0);
-    } else if(master.get_digital(DIGITAL_UP)) {
-        arm_front.move(-50);
-        pros::delay(30);
-        arm_front.move(-25);
-        pros::delay(30);
-        arm_front.move(0);
-    }
-}
-
-
-void rear_arm_drive(int position) {
-
-    if (position == 0) {
-        arm_rear.move_absolute(-14,arm_voltage);
-        arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    } else if (position == 1) {
-        arm_rear.move_absolute(695, arm_voltage);
-        arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    } else if (position == 2) {
-        arm_rear.move_absolute(420, arm_voltage);
-        arm_rear.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    } 
-
-}
-void rear_arm_preset(int position) {
-    
-}
-
-
-void front_claw_drive(bool close) {
-    if (close) {
-        claw_front.set_value(1);
+void chassis_drive(double lSpeed, double rSpeed, bool pto) {
+    if(pto) {
+        chassis_left_front.move(-lSpeed);
+        chassis_left_rear.move(-lSpeed);
+        chassis_right_front.move(-rSpeed);
+        chassis_right_rear.move(-rSpeed);
     } else {
-        claw_front.set_value(0);
+        chassis_left_front.move(-lSpeed);
+        chassis_left_rear.move(-lSpeed);
+        intake_front.move(-lSpeed);
+
+        chassis_right_front.move(-rSpeed);
+        chassis_right_rear.move(-rSpeed);
+        intake_back.move(rSpeed);
     }
 }
 
-
-void chassis_rotate(int speed, bool clockwise) {
-    int speed_modifier = clockwise ? 1 : -1;
-    chassis_drive(speed_modifier * speed, -1 * speed_modifier * speed);
+void flywheel_drive(int speed) {
+    flywheel_right.move_voltage(-speed);
+    flywheel_left.move_voltage(speed);
 }
 
-int calculate_rotate_speed(int delta) {
-    if (std::abs(delta) < 30) {
-        return 50;
-    }
-    return 60;
+
+
+void intake_drive(int fSpeed, int bSpeed) {
+    pto.set_value(true);
+    intake_front.move(fSpeed);
+    intake_back.move(bSpeed);
+}
+void pto_drive(bool extended) {
+    pto.set_value(extended);
+}
+void indexer_drive(bool extended) {
+    indexer.set_value(extended);
 }
 
-int calculate_rotation_threshold(int degree) {
-    degree = abs(degree);
-    if (degree >= 90) {
-        return 7;
-    } else if (degree >= 60) {
-        return 6;
-    } else if (degree >= 45) {
-        return 5;
-    } else if (degree >= 30) {
-        return 3;
-    } 
-
-    return 2;
-}
-
-void chassis_turn(double degree) {
-
-    std::cout << "chassis turn " << degree << std::endl;
-    set_cheassis_break_mode(pros::E_MOTOR_BRAKE_BRAKE);
-    double chass_rotate_degree_threshold = calculate_rotation_threshold(degree);
-
-    imu_sensor.tare_heading();
-    double current_pos = imu_sensor.get_heading();
-    double target_pos = (int)(current_pos + degree);
-    double delta = degree;
-    double last_delta = std::abs(delta);
-
-    while (std::abs(delta) > chass_rotate_degree_threshold) {
-        int speed = calculate_rotate_speed(delta);
-        chassis_rotate(speed, delta > 0);
-        pros::delay(20);
-        
-        current_pos = imu_sensor.get_heading();
-        delta = (int)(target_pos - current_pos) % 360;
-        cout << "target: " << target_pos 
-            << ", current: " << current_pos
-            << ", dalta: " << delta 
-            << ", rotation: " << imu_sensor.get_rotation() 
-            << ", last delta: " << last_delta << endl;
-        // if (std::abs(delta) > (last_delta + chass_rotate_degree_threshold)) {
-        //     break;
-        // }
-        last_delta = std::abs(delta);
-    }
-    cout << "break out from the loop" << endl;  
-    chassis_drive(0, 0);
-
-    // pros::delay(500);
-    // cout << "final!! target: " << target_pos 
-    //     << ", current: " << imu_sensor.get_heading() 
-    //     << ", dalta: " << delta 
-    //     << ", rotation: " << imu_sensor.get_rotation() 
-    //     << ", last delta: " << last_delta << endl;
-
-}
-
-double average_chassis_motor_position() {
-    auto l_pos = chassis_left_front.get_position();
-    auto r_pos = chassis_right_front.get_position(); 
-
-    cout << "left position: " << l_pos
-        << ", right position: " << r_pos
-        << endl;
-
-    return (l_pos + r_pos) / 2;
-}
-
-void chassis_drive_distance(int unit, int speed) {
-
-    set_cheassis_break_mode(pros::E_MOTOR_BRAKE_BRAKE);
-    int direction = speed > 0 ? -1 : 1;
-    if(speed > 0) {
-        int direction = 1;
-    } else {
-        direction = -1;
-    }
-    chassis_left_front.tare_position();
-    chassis_right_front.tare_position();
-    chassis_drive(30 * direction, 30 * direction);
-    pros::delay(200);
-    while (true) {
-        chassis_drive(speed * direction, speed * direction);
-        pros::delay(20);
-        auto pos = average_chassis_motor_position();
-        if ((abs(pos) - unit) >= 400) {
-            break;
-        }
-    }
-    while (true) {
-        chassis_drive(30 * direction, 30 * direction);
-        pros::delay(20);
-        auto pos = average_chassis_motor_position();
-        if (abs(pos) >= unit) {
-            break;
-        }
-    }
-    chassis_drive(0, 0);
-}
-
-void chassis_drive_until_distance(int stop_distance, int speed) {
-    set_cheassis_break_mode(pros::E_MOTOR_BRAKE_BRAKE);
-    auto distance = distance_sensor.get();
-    chassis_drive(30, 30);
-    pros::delay(200);
-    while (distance > (stop_distance + 500)) {
-        chassis_drive(speed, speed);
-        pros::delay(20);
-
-        distance = distance_sensor.get();
-        auto confidence = distance_sensor.get_confidence();
-        auto size = distance_sensor.get_object_size();
-
-        cout << "distance: " << distance
-            << ", confidence: " << confidence
-            << ", size: " << size << endl;
-    }
-    while (distance > stop_distance) {
-        chassis_drive(45, 45);
-        pros::delay(20);
-        distance = distance_sensor.get();
-    }
-    chassis_drive(0, 0);
-
-    // pros::delay(500);
-    // cout << "final distance: " << distance_sensor.get() << endl;
-}
-void chassis_drive_until_distance_back(int stop_distance, int speed) {
-    set_cheassis_break_mode(pros::E_MOTOR_BRAKE_BRAKE);
-    auto distance = distance_back_sensor.get();
-    chassis_drive(-30, -30);
-    pros::delay(200);
-    while (distance > (stop_distance + 500)) {
-        chassis_drive(-speed, -speed);
-        pros::delay(20);
-
-        distance = distance_back_sensor.get();
-        auto confidence = distance_back_sensor.get_confidence();
-        auto size = distance_back_sensor.get_object_size();
-
-        cout << "distance: " << distance
-            << ", confidence: " << confidence
-            << ", size: " << size << endl;
-    }
-    while (distance > stop_distance) {
-        chassis_drive(30, 30);
-        pros::delay(20);
-        distance = distance_back_sensor.get();
-    }
-    chassis_drive(0, 0);
-
-    // pros::delay(500);
-    // cout << "final distance: " << distance_sensor.get() << endl;
-}
-
-void chassis_drive_until_level() {
-
-    const int pitch_threshold = 10;
-    set_cheassis_break_mode(pros::E_MOTOR_BRAKE_BRAKE);
-    bool is_chassis_on_bridge = false;
-    bool is_chassis_leveled = false;
-    double max_pitch = 0;
-    while (!is_chassis_on_bridge) {
-        chassis_drive(-80, -80);
-        pros::delay(20);
-
-        auto pitch = imu_sensor.get_pitch();
-        max_pitch = max(max_pitch, abs(pitch));
-        cout << "pitch: " << pitch << endl;
-        if (abs(pitch) > pitch_threshold) {
-            is_chassis_on_bridge = true;
-            cout << "on the bridge now" << endl;
-        }
-    }
-    pros::delay(700);
-    while (!is_chassis_leveled) {
-        // chassis_drive(-50, -50);
-        pros::delay(20);
-        auto pitch = imu_sensor.get_pitch();
-        max_pitch = max(max_pitch, abs(pitch));
-        cout << "pitch: " << pitch << ", max pitch: " << max_pitch << endl;
-        if (abs(pitch) < max_pitch - 1) {
-            is_chassis_leveled = true;
-            cout << "on the bridge and leveled now." << endl;
-        }
-    }
-    //chassis_drive(50, 50);
-    //pros::delay(100);
-    chassis_drive(0, 0);
-    pros::delay(100);
-
-    chassis_drive(50, 50);
-    // pros::delay(200);
-
-    chassis_drive(0, 0);
-    
-    pros::delay(1000);
-    cout << "final pitch: " << imu_sensor.get_pitch() << endl;
-    
-    // auto pitch = imu_sensor.get_pitch();
-    // while (abs(pitch) > pitch_threshold) {
-    //     int direction = pitch > 0 ? 1 : -1;
-    //     chassis_drive(direction * 40, direction * 40);
-    //     pros::delay(100);
-    //     chassis_drive(0, 0);
-    //     pros::delay(100);
-    //     cout << "pitch: " << pitch << endl;
-    // }
-
-    // chassis_drive(0, 0);
-    
-    // pros::delay(1000);
-    // cout << "final pitch: " << imu_sensor.get_pitch() << endl;
-    
-}
